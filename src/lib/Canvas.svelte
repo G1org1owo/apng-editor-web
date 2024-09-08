@@ -1,14 +1,15 @@
 <script lang="ts">
-    import { clearCanvas } from "./image";
+	import { clearCanvas } from './image';
     import { Matrix3 } from './matrix';
 
     const scaleRatio: number = 0.1;
 
     let transformedImage: OffscreenCanvas;
 
-    export let canvas: HTMLCanvasElement;
+    let canvas: HTMLCanvasElement;
     export let backgroundImage: ImageBitmap;
     export let baseImage: ImageBitmap;
+    export let selection: {x: number, y: number, w: number, h: number};
 
     let mouseDown: boolean = false;
     let origin: DOMPoint;
@@ -19,22 +20,33 @@
         [0, 0, 1]
     ]);
 
-    export const paintImage = () => {
+    export const reset = () => {
+        transform = new Matrix3([
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+        ]);
+    };
+
+    export const paintImage = (image: ImageBitmap, selection: any = null) => {
         const context: CanvasRenderingContext2D = canvas.getContext('2d')!;
 
-        transformedImage = new OffscreenCanvas(canvas.width, canvas.height);
+        transformedImage ??= new OffscreenCanvas(canvas.width, canvas.height);
         clearCanvas(transformedImage);
         const transformedImageContext = transformedImage.getContext("2d")!;
 
-        transformedImageContext.setTransform(1, 0, 0, 1, baseImage.width/2, baseImage.height/2);
+        transformedImageContext.imageSmoothingEnabled = false;
+        transformedImageContext.setTransform(1, 0, 0, 1, image.width/2, image.height/2);
         transformedImageContext.transform(
             transform.m11, transform.m21,
             transform.m12, transform.m22,
             transform.m13, transform.m23
         );
-        transformedImageContext.transform(1, 0, 0, 1, -baseImage.width/2, -baseImage.height/2);
+        transformedImageContext.transform(1, 0, 0, 1, -image.width/2, -image.height/2);
         
-        transformedImageContext.drawImage(baseImage, 0, 0);
+        transformedImageContext.drawImage(image, 0, 0);
+        transformedImageContext.strokeStyle = "#ff0000"
+        transformedImageContext.strokeRect(selection.x, selection.y, selection.w, selection.h);
 
         context.drawImage(backgroundImage, 0, 0);
         context.drawImage(transformedImage, 0, 0);
@@ -52,7 +64,7 @@
             [0, 0, 1]
         ]));
 
-        paintImage();
+        paintImage(baseImage, selection);
     }
 
     const handlePan = (event: MouseEvent) => {
@@ -61,13 +73,15 @@
         transform.m13 += event.movementX;
         transform.m23 += event.movementY;
 
-        paintImage();
+        paintImage(baseImage, selection);
     }
 
     const onMouseDown = (event: MouseEvent) => {
         if(event.button == 0) mouseDown = true;
         origin = new DOMPoint(event.offsetX, event.offsetY);
     }
+
+    $: if(baseImage && selection) paintImage(baseImage, selection);
 </script>
 
 <canvas 

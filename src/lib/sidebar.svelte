@@ -2,39 +2,57 @@
     import "@material/web/textfield/outlined-text-field";
     import "@material/web/select/outlined-select";
     import "@material/web/button/elevated-button";
-    import "@material/web/button/filled-button";
     import "@material/web/button/filled-tonal-button";
-    import "@material/web/button/outlined-button";
     import "@material/web/checkbox/checkbox";
 
     import { createEventDispatcher } from 'svelte';
+	import type { MdOutlinedTextField } from "@material/web/textfield/outlined-text-field";
 
 	const dispatch = createEventDispatcher();
 
-    export let xOffset: number;
-    export let yOffset: number;
-    export let width: number;
-    export let height: number;
+    export let selection;
     export let frameCount: number;
     export let millisecondsPerFrame: number;
 
+    let xOffset: number = 0;
+    let yOffset: number = 0;
+    let width: number = 100;
+    let height: number = 100;
+
     let fileInput: HTMLInputElement;
 
-    const onChange = (event: Event) => {
+    const onFileSelected = (event: Event) => {
         let file: File = fileInput.files![0];
         dispatch('fileSelected', {file: file});
-    }
+    };
+
+    const onTextUpdate = (e: InputEvent, updateValue: (n: number) => void) => {
+        let textField: MdOutlinedTextField = e.target as MdOutlinedTextField;
+
+        if(e.data != null && isNaN(+e.data)) {
+            console.log(e.data);
+            textField.value = textField.value.replace(e.data, "");
+        }
+
+        updateValue(+textField.value);
+    };
+
+    $: selection = {x: xOffset, y:yOffset, w:width, h:height};
 </script>
 
 <div class="dark input-sizes">
     <md-outlined-text-field class="dark"
-        label="Horizontal offset" type="number" value={xOffset}/>
+        on:input={(e) => onTextUpdate(e, (v) => xOffset = v)}
+        label="Horizontal offset" value={xOffset}/>
     <md-outlined-text-field class="dark"
-        label="Vertical offset" type="number" value={yOffset}/>
+        on:input={(e) => onTextUpdate(e, (v) => yOffset = v)}
+        label="Vertical offset" value={yOffset}/>
     <md-outlined-text-field class="dark"
-        label="Width" type="number" value={width}/>
+        on:input={(e) => onTextUpdate(e, (v) => width = v)}
+        label="Width" value={width}/>
     <md-outlined-text-field class="dark"
-        label="Height" type="number" value={height}/>
+        on:input={(e) => onTextUpdate(e, (v) => height = v)}
+        label="Height" value={height}/>
 </div>
 
 <div class="dark input-meta">
@@ -61,7 +79,7 @@
 <div class="dark input-file-container">
     <input hidden type="file" accept="image/*"
         bind:this={fileInput}
-        on:change={onChange}>
+        on:change={onFileSelected}>
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <!-- svelte-ignore a11y-no-static-element-interactions -->
     <md-elevated-button class="dark" on:click={fileInput.click()}>
