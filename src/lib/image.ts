@@ -19,3 +19,14 @@ export async function createCheckersBackground(width: number, height: number) {
 
     return await createImageBitmap(imageData);
 }
+
+export function clearCanvas(canvas: HTMLCanvasElement | OffscreenCanvas) {
+    const context = canvas.getContext("2d")!;
+    
+    context.save();
+
+    context.resetTransform();
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    context.restore();
+}

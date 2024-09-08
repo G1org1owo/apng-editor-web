@@ -2,6 +2,7 @@
     import {createCheckersBackground} from "$lib/image";
 	import { onMount } from "svelte";
 	import Sidebar from "$lib/sidebar.svelte";
+	import Canvas from "$lib/Canvas.svelte";
 
     let canvas: HTMLCanvasElement;
 
@@ -15,13 +16,11 @@
     let millisecondsPerFrame: number = 100;
     let frameCount: number = 0;
 
+    let paintImage: () => void;
+
     const loadImage = async (event: CustomEvent) => {
         baseImage = await createImageBitmap(event.detail.file);
-
-        const context: CanvasRenderingContext2D = canvas.getContext("2d")!;
-        context.reset();
-        context.drawImage(backgroundImage, 0, 0);
-        context.drawImage(baseImage, 0, 0, baseImage.width, baseImage.height);
+        paintImage();
     };
 
     onMount(async () => {
@@ -32,12 +31,12 @@
 
 <div style="width: 100%; height: 100%;" class="dark content-container">
     <div class="dark canvas-container">
-        <canvas 
-            width=1080
-            height=720
-            bind:this={canvas}
-            class = "dark workspace-canvas">
-        </canvas>
+        <Canvas
+            bind:canvas={canvas}
+            {backgroundImage}
+            {baseImage}
+            bind:paintImage={paintImage}
+        />
     </div>
     
     <div class="dark controls-container">
@@ -68,12 +67,6 @@
 
         border: 1px solid var(--md-sys-color-outline-variant);
         padding: 10px;
-    }
-
-    .workspace-canvas {
-        border:3px solid;
-        border-color: var(--md-sys-color-outline);
-        border-radius: 10px;
     }
 
     .content-container {
