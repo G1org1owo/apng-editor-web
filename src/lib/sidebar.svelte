@@ -11,13 +11,14 @@
 	const dispatch = createEventDispatcher();
 
     export let selection;
-    export let frameCount: number;
-    export let millisecondsPerFrame: number;
 
     let xOffset: number = 0;
     let yOffset: number = 0;
     let width: number = 100;
     let height: number = 100;
+    let frameCount: number = 1;
+    let millisecondsPerFrame: number = 100;
+    let horizontal: boolean = true;
 
     let fileInput: HTMLInputElement;
 
@@ -37,7 +38,8 @@
         updateValue(+textField.value);
     };
 
-    $: selection = {x: xOffset, y:yOffset, w:width, h:height};
+    $: selection = {x: xOffset, y:yOffset, w:width, h:height, frames: frameCount, msPerFrame: millisecondsPerFrame, horizontal: horizontal};
+    $: checked = horizontal? "checked" : "";
 </script>
 
 <div class="dark input-sizes">
@@ -57,15 +59,19 @@
 
 <div class="dark input-meta">
     <md-outlined-text-field class="dark"
+        on:input={(e) => onTextUpdate(e, (v) => frameCount = v)}
         label="Frame count" value={frameCount}/>
     <md-outlined-text-field class="dark"
+        on:input={(e) => onTextUpdate(e, (v) => millisecondsPerFrame = v)}
         label="Milliseconds per frame" value={millisecondsPerFrame}/>
 </div>
 
 <div class="dark checkbox-container">
     <!-- svelte-ignore a11y-label-has-associated-control -->
     <label class="dark">
-        <md-checkbox class="dark" checked></md-checkbox>
+        <md-checkbox class="dark" checked
+            on:change={(e) => horizontal = e.target.checked}
+        />
         Horizontal
     </label>
 </div>

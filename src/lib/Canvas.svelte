@@ -9,7 +9,7 @@
     let canvas: HTMLCanvasElement;
     export let backgroundImage: ImageBitmap;
     export let baseImage: ImageBitmap;
-    export let selection: {x: number, y: number, w: number, h: number};
+    export let selection: {x: number, y: number, w: number, h: number, frames: number, msPerFrame: number, horizontal: boolean};
 
     let mouseDown: boolean = false;
     let origin: DOMPoint;
@@ -35,6 +35,7 @@
         clearCanvas(transformedImage);
         const transformedImageContext = transformedImage.getContext("2d")!;
 
+        transformedImageContext.strokeStyle = "#ff0000"
         transformedImageContext.imageSmoothingEnabled = false;
         transformedImageContext.setTransform(1, 0, 0, 1, image.width/2, image.height/2);
         transformedImageContext.transform(
@@ -45,8 +46,16 @@
         transformedImageContext.transform(1, 0, 0, 1, -image.width/2, -image.height/2);
         
         transformedImageContext.drawImage(image, 0, 0);
-        transformedImageContext.strokeStyle = "#ff0000"
-        transformedImageContext.strokeRect(selection.x, selection.y, selection.w, selection.h);
+        let frameWidth = selection.horizontal? selection.w/selection.frames : selection.w;
+        let frameHeight = selection.horizontal? selection.h : selection.h/selection.frames;
+        for(let i=0; i<selection.frames; i++) {
+            let frameOffsetX = selection.horizontal? selection.x + frameWidth * i : selection.x;
+            let frameOffsetY = selection.horizontal? selection.y : selection.y + frameHeight * i;
+            transformedImageContext.strokeRect(
+                frameOffsetX, frameOffsetY,
+                frameWidth, frameHeight
+            );
+        }
 
         context.drawImage(backgroundImage, 0, 0);
         context.drawImage(transformedImage, 0, 0);

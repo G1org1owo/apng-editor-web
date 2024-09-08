@@ -7,9 +7,7 @@
     let backgroundImage: ImageBitmap;
     let baseImage: ImageBitmap;
 
-    let selection: {x: number, y: number, w: number, h:number};
-    let millisecondsPerFrame: number = 100;
-    let frameCount: number = 0;
+    let selection: {x: number, y: number, w: number, h:number, frames: number, msPerFrame: number, horizontal: boolean};
 
     let paintImage: (image: ImageBitmap, selection: any) => void;
     let resetCanvas: () => void;
@@ -39,8 +37,6 @@
     <div class="dark controls-container">
         <Sidebar
             bind:selection={selection}
-            bind:millisecondsPerFrame={millisecondsPerFrame}
-            bind:frameCount={frameCount}
             on:fileSelected={loadImage}
         />
     </div>
