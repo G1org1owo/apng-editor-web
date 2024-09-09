@@ -38,6 +38,18 @@
         updateValue(+textField.value);
     };
 
+    const extractFrames = () => {
+        dispatch('extractFrames');
+    }
+
+    const deleteLastFrame = () => {
+        dispatch('deleteLastFrame');
+    }
+
+    const clearFrames = () => {
+        dispatch('clearFrames');
+    }
+
     $: selection = {x: xOffset, y:yOffset, w:width, h:height, frames: frameCount, msPerFrame: millisecondsPerFrame, horizontal: horizontal};
     $: checked = horizontal? "checked" : "";
 </script>
@@ -76,10 +88,12 @@
     </label>
 </div>
 
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- svelte-ignore a11y-click-events-have-key-events -->
 <div class="dark buttons-container">
-    <md-filled-tonal-button>Add frame(s)</md-filled-tonal-button>
-    <md-filled-tonal-button>Delete last frame</md-filled-tonal-button>
-    <md-filled-tonal-button>Clear frames</md-filled-tonal-button>
+    <md-filled-tonal-button on:click={extractFrames}>Add frame(s)</md-filled-tonal-button>
+    <md-filled-tonal-button on:click={deleteLastFrame}>Delete last frame</md-filled-tonal-button>
+    <md-filled-tonal-button on:click={clearFrames}>Clear frames</md-filled-tonal-button>
 </div>
 
 <div class="dark input-file-container">
