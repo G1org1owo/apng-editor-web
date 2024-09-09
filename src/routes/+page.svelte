@@ -1,8 +1,8 @@
 <script lang="ts">
     import {createCheckersBackground} from "$lib/image";
 	import { onMount } from "svelte";
-	import Sidebar from "$lib/sidebar.svelte";
-	import Canvas from "$lib/Canvas.svelte";
+	import Sidebar from "$lib/components/Sidebar.svelte";
+	import Canvas from "$lib/components/Canvas.svelte";
 
     let backgroundImage: ImageBitmap;
     let baseImage: ImageBitmap;

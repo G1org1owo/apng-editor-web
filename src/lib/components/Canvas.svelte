@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { clearCanvas } from './image';
-    import { Matrix3 } from './matrix';
+	import { clearCanvas } from '../image';
+    import { Matrix3 } from '../matrix';
 
     const scaleRatio: number = 0.1;
 
