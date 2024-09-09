@@ -62,6 +62,8 @@
     }
 
     const handleZoom = (event: WheelEvent) => {
+        if(!baseImage) return;
+
         const zoomDirection = event.deltaY / -100; 
         const zoomScale = 1 + scaleRatio * zoomDirection;
         const oldScale = transform.m11;
@@ -77,7 +79,7 @@
     }
 
     const handlePan = (event: MouseEvent) => {
-        if(!mouseDown) return;
+        if(!mouseDown || !baseImage) return;
 
         transform.m13 += event.movementX;
         transform.m23 += event.movementY;
