@@ -4,6 +4,12 @@
 	import Sidebar from "$lib/components/Sidebar.svelte";
 	import Canvas from "$lib/components/Canvas.svelte";
 	import AnimationPreview from "$lib/components/AnimationPreview.svelte";
+    import "@material/web/button/text-button";
+	import type { MdMenu } from "@material/web/menu/menu";
+    import "@material/web/menu/menu-item";
+
+    let fileMenu: MdMenu;
+    let fileInput: HTMLInputElement;
 
     let backgroundImage: ImageBitmap;
     let baseImage: ImageBitmap;
@@ -16,8 +22,9 @@
     let drawPreviewFrame: (frame: ImageBitmap) => void;
     let resetPreview: () => void;
 
-    const loadImage = async (event: CustomEvent) => {
-        baseImage = await createImageBitmap(event.detail.file);
+    const loadImage = async (event: Event) => {
+        const file = fileInput.files![0];
+        baseImage = await createImageBitmap(file);
         resetCanvas();
         paintImage(baseImage, selection);
     };
@@ -64,6 +71,27 @@
     });
 </script>
 
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<div class="navbar dark">
+    <span style="position: relative">
+        <md-text-button class="dark navbar-button" id="anchor-file"
+            on:click={fileMenu.open = !fileMenu.open}>
+            File
+        </md-text-button>
+
+        <input hidden type="file" accept="image/*"
+            bind:this={fileInput}
+            on:change={loadImage}>
+
+        <md-menu class="dark" anchor="anchor-file" bind:this={fileMenu}>
+            <md-menu-item on:click={() => fileInput.click()}>
+                <div slot="headline">Upload</div>
+            </md-menu-item>
+        </md-menu>
+    </span>
+</div>
+
 <div style="width: 100%; height: 100%;" class="dark content-container">
     <div class="dark canvas-container">
         <Canvas
@@ -79,7 +107,6 @@
         <div class="dark controls-container">
             <Sidebar
                 bind:selection={selection}
-                on:fileSelected={loadImage}
                 on:extractFrames={extractFrames}
                 on:deleteLastFrame={deleteLastFrame}
                 on:clearFrames={clearFrames}
@@ -96,6 +123,15 @@
 </div>
 
 <style>
+    .navbar {
+        border-bottom: 1px solid var(--md-sys-color-outline);
+        margin-bottom: 10px;
+    }
+
+    .navbar-button {
+        --md-text-button-container-shape: 0px;
+    }
+    
     .content-container {
         display: flex;
     }

@@ -20,13 +20,6 @@
     let millisecondsPerFrame: number = 100;
     let horizontal: boolean = true;
 
-    let fileInput: HTMLInputElement;
-
-    const onFileSelected = (event: Event) => {
-        let file: File = fileInput.files![0];
-        dispatch('fileSelected', {file: file});
-    };
-
     const onTextUpdate = (e: InputEvent, updateValue: (n: number) => void) => {
         let textField: MdOutlinedTextField = e.target as MdOutlinedTextField;
 
@@ -51,7 +44,6 @@
     }
 
     $: selection = {x: xOffset, y:yOffset, w:width, h:height, frames: frameCount, msPerFrame: millisecondsPerFrame, horizontal: horizontal};
-    $: checked = horizontal? "checked" : "";
 </script>
 
 <div class="dark input-sizes">
@@ -96,27 +88,10 @@
     <md-filled-tonal-button on:click={clearFrames}>Clear frames</md-filled-tonal-button>
 </div>
 
-<div class="dark input-file-container">
-    <input hidden type="file" accept="image/*"
-        bind:this={fileInput}
-        on:change={onFileSelected}>
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <md-elevated-button class="dark" on:click={fileInput.click()}>
-        Upload file
-        <svg slot="icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
-    </md-elevated-button>
-</div>
-
 <style>
     label {
         font-family: "Roboto", roboto;
         color: var(--md-sys-color-on-background);
-    }
-
-    .input-file-container {
-        display: flex;
-        justify-content: right;
     }
 
     .input-sizes {
