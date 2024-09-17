@@ -1,10 +1,11 @@
 <script lang="ts">
-    import {createCheckersBackground} from "$lib/image";
+    import { createCheckersBackground, framesToAPNG, Frame } from "$lib/image";
 	import { onMount } from "svelte";
 	import Sidebar from "$lib/components/Sidebar.svelte";
 	import Canvas from "$lib/components/Canvas.svelte";
 	import AnimationPreview from "$lib/components/AnimationPreview.svelte";
     import "@material/web/button/text-button";
+    import "@material/web/button/outlined-button";
 	import type { MdMenu } from "@material/web/menu/menu";
     import "@material/web/menu/menu-item";
 
@@ -15,7 +16,7 @@
     let baseImage: ImageBitmap;
 
     let selection: {x: number, y: number, w: number, h:number, frames: number, msPerFrame: number, horizontal: boolean};
-    let frames: [{frame: ImageBitmap, msPerFrame: number}?] = [];
+    let frames: [Frame?] = [];
 
     let paintImage: (image: ImageBitmap, selection: any) => void;
     let resetCanvas: () => void;
@@ -44,13 +45,13 @@
             let data = context.getImageData(frameOffsetX, frameOffsetY, frameWidth, frameHeight);
 
             frames.push({
-                frame: await createImageBitmap(data),
+                image: await createImageBitmap(data),
                 msPerFrame: selection.msPerFrame
             });
         }
 
         frames = frames;
-        drawPreviewFrame(frames[0]!.frame);
+        drawPreviewFrame(frames[0]!.image);
     }
 
     const deleteLastFrame = () => {
@@ -118,6 +119,16 @@
                 bind:drawFrame={drawPreviewFrame}
                 bind:reset={resetPreview}
             />
+
+            {#if frames != null && frames.length != 0}
+            <div>
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <!-- svelte-ignore a11y-no-static-element-interactions -->
+                <md-outlined-button on:click={(e) => framesToAPNG(frames)}>
+                    Save
+                </md-outlined-button>
+            </div>
+            {/if}
         </div>
     </div>
 </div>
@@ -166,6 +177,7 @@
         flex-shrink: 1;
 
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
 

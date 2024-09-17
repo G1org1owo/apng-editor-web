@@ -1,7 +1,9 @@
 <script lang="ts">
+    import { Frame } from "$lib/image";
+
     let canvas: HTMLCanvasElement;
 
-    export let frames: [{frame: ImageBitmap, msPerFrame: number}?];
+    export let frames: [Frame?];
 
     let index = 0;
     let timeout: number;
@@ -22,7 +24,7 @@
     const nextFrame = (): number => {
         return setTimeout(() => {
             index = (index + 1) % frames.length;
-            drawFrame(frames[index]!.frame);
+            drawFrame(frames[index]!.image);
             timeout = nextFrame();
         }, frames[index]!.msPerFrame)
     };
