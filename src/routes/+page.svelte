@@ -149,8 +149,8 @@
     }
 
     .canvas-container {
-        width: fit-content;
-        height: fit-content;
+        /*width: fit-content;
+        height: fit-content;*/
 
         flex-grow: 1;
         flex-shrink: 1;
