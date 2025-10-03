@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Frame } from "$lib/image";
+    import { Frame } from "$lib/frame";
 
     let canvas: HTMLCanvasElement;
 

@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { createCheckersBackground, framesToAPNG, Frame } from "$lib/image";
+    import { createCheckersBackground, framesToAPNG} from "$lib/image";
+    import { Frame } from "$lib/frame";
 	import { onMount } from "svelte";
 	import Sidebar from "$lib/components/Sidebar.svelte";
 	import Canvas from "$lib/components/Canvas.svelte";

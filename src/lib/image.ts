@@ -1,30 +1,6 @@
-const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
-
-class PNGChunk {
-    public buffer: ArrayBuffer;
-
-    constructor(buffer: ArrayBuffer) {
-        this.buffer = buffer;
-    }
-}
-
-export class Frame {
-    public image: ImageBitmap;
-    public msPerFrame: number;
-
-    public constructor(image: ImageBitmap, msPerFrame: number) {
-        this.image = image;
-        this.msPerFrame = msPerFrame;
-    }
-}
-
-function compareArrayContents(array1: Uint8Array | Array<number>, array2: Uint8Array | Array<number>) {
-    return array1.every((value, index) => value == array2[index]);
-}
-
-function getChunkLength(array: Uint8Array) {
-    return new Uint32Array(array.reverse().buffer)[0];
-} 
+import type { Frame } from "./frame";
+import { makeacTL, PNGChunk, PNGChunkArray } from "./png";
+import { extractPNGChunks } from "./png";
 
 export async function createCheckersBackground(width: number, height: number) {
     let imageData: ImageData = new ImageData(width, height);
@@ -60,34 +36,9 @@ export function clearCanvas(canvas: HTMLCanvasElement | OffscreenCanvas) {
 }
 
 export async function framesToAPNG(frames: [Frame]) {
-    const canvas: OffscreenCanvas = new OffscreenCanvas(frames[0].image.width, frames[0].image.height);
-    const ctx = canvas.getContext("2d")!;
+    const apngChunks: PNGChunk[] = [];
 
-    const extractPNGChunks = async (frame: Frame) => {
-        ctx.reset();
-        ctx.drawImage(frame.image, frame.image.width, frame.image.height);
-        const pngData = new Uint8Array(await canvas.convertToBlob().then((blob) => {
-            return blob.arrayBuffer()
-        }) as ArrayBuffer);
-
-        if(!compareArrayContents(pngData.slice(0, 8), PNG_SIGNATURE)) return null;
-
-        const pngChunks = [];
-
-        for(let i=8; i<pngData.length; ) {
-            let length = getChunkLength(pngData.slice(i, i+4));
-            console.log(length);
-            pngChunks.push(new PNGChunk(pngData.slice(i, i + 4 + 4 + length + 4).buffer));
-
-            i += 4 + 4 + length + 4;
-        }
-
-        return pngChunks;
-    }
-
-    const apngChunks: [PNGChunk?] = [];
-
-    let png = await extractPNGChunks(frames[0]);
+    let png: PNGChunkArray | null = await extractPNGChunks(frames[0]);
     console.log(png);
 
     /*
@@ -102,11 +53,17 @@ export async function framesToAPNG(frames: [Frame]) {
     }, 0);
     */
 
+    const acTLData = new Uint8Array(new Uint32Array(
+        [frames.length, 0]
+    ).buffer);
+    const acTL = PNGChunk.fromData(acTLData, "acTL");
+
+    console.log(makeacTL(frames.length, 0));
 
     // Insert acTL after IHDR
     // Insert fcTL before IDAT
-    // apngChunks.push(png.allFrames);
-    // const iend = png["IEND"];
+    apngChunks.push(...png!.allChunks);
+    const iend = png?.get("IEND");
 
     for(let i=1; i<frames.length; i++) {
         const frame = frames[i];
